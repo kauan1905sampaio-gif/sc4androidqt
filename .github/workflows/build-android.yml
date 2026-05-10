@@ -1,0 +1,45 @@
+name: Gerar APK Release (Não Assinado)
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # Permite rodar manualmente se quiser
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Baixar Código
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: 3. Instalar Qt6
+        uses: jurplel/install-qt@v4
+        with:
+          version: '6.6.2' # Use a versão que preferir
+          target: 'android'
+          arch: 'android_arm64_v8a'
+
+      - name: 4. Configurar e Compilar (Modo Release)
+        run: |
+          mkdir build && cd build
+          # O segredo está no -DCMAKE_BUILD_TYPE=Release
+          ${{ env.Qt6_DIR }}/bin/qt-cmake .. -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DQT_ANDROID_ABIS="arm64-v8a"
+          
+          # Compila o projeto e gera o APK
+          cmake --build . --target apk
+
+      - name: 5. Guardar APK Release
+        uses: actions/upload-artifact@v4
+        with:
+          name: MeuApp-Release-Unsigned
+          # O Qt coloca o APK de release nesta subpasta específica
+          path: build/android-build/build/outputs/apk/release/*.apk
+
