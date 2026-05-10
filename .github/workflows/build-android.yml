@@ -19,7 +19,7 @@ jobs:
           distribution: 'temurin'
 
       - name: 3. Instalar Qt6
-        uses: jurplel/install-qt@v3
+        uses: pzhlkj6612/install-qt-action@master
         with:
           version: '6.6.2' # Use a versão que preferir
           target: 'android'
